@@ -1,5 +1,7 @@
 # Clínica · API de citas
 
+[![CI](https://github.com/aaroonpereez/clinica-citas-api/actions/workflows/ci.yml/badge.svg)](https://github.com/aaroonpereez/clinica-citas-api/actions/workflows/ci.yml)
+
 API REST para gestionar pacientes, médicos y citas de una clínica.
 
 **Stack:** Java 21 · Spring Boot 4 · Spring Data JPA · PostgreSQL · Bean Validation · OpenAPI/Swagger · JUnit 5 + Mockito
@@ -82,5 +84,6 @@ src/main/java/com/clinica/citas
 - [x] Estructura, Docker, CRUD de pacientes, manejo de errores, Swagger
 - [x] CRUD de médicos
 - [x] Citas: reserva sin solapes, estados, agenda e historial
+- [x] Integración continua con GitHub Actions
 - [ ] Spring Security + JWT (roles ADMIN, MEDICO, PACIENTE)
 - [ ] Semana 3-4: más tests (`@WebMvcTest`, `@DataJpaTest`, Testcontainers), Flyway para migraciones, GitHub Actions
