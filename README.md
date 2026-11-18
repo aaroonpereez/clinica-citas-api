@@ -18,6 +18,8 @@ docker compose up -d          # levanta PostgreSQL en localhost:5432
 - Swagger UI: http://localhost:8080/swagger-ui.html
 - OpenAPI JSON: http://localhost:8080/v3/api-docs
 
+La primera vez que arranca con la base de datos vacía carga datos de ejemplo ficticios: 5 médicos, 6 pacientes y 8 citas en distintos estados. Prueba por ejemplo `GET /api/v1/medicos/1/agenda?fecha=<mañana>`. Para arrancar sin ellos: `DATOS_EJEMPLO=false`.
+
 Tests:
 
 ```bash
