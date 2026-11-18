@@ -1,5 +1,6 @@
 package com.clinica.citas.paciente;
 
+import com.clinica.citas.cita.CitaRepository;
 import com.clinica.citas.common.exception.ConflictException;
 import com.clinica.citas.common.exception.ResourceNotFoundException;
 import com.clinica.citas.paciente.dto.PacienteRequest;
@@ -14,9 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class PacienteService {
 
     private final PacienteRepository repository;
+    private final CitaRepository citaRepository;
 
-    public PacienteService(PacienteRepository repository) {
+    public PacienteService(PacienteRepository repository, CitaRepository citaRepository) {
         this.repository = repository;
+        this.citaRepository = citaRepository;
     }
 
     public Page<PacienteResponse> listar(Pageable pageable) {
@@ -54,7 +57,11 @@ public class PacienteService {
 
     @Transactional
     public void eliminar(Long id) {
-        repository.delete(buscar(id));
+        Paciente paciente = buscar(id);
+        if (citaRepository.existsByPacienteId(id)) {
+            throw new ConflictException("No se puede eliminar un paciente con citas registradas");
+        }
+        repository.delete(paciente);
     }
 
     private Paciente buscar(Long id) {

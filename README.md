@@ -29,31 +29,58 @@ Organizado por funcionalidad (cada carpeta contiene su entidad, repositorio, ser
 ```
 src/main/java/com/clinica/citas
 ├── ClinicaCitasApplication.java
-├── config/            OpenApiConfig
+├── config/            OpenApiConfig, ClockConfig
 ├── common/exception/  Excepciones y GlobalExceptionHandler (respuestas ProblemDetail)
-├── paciente/          CRUD completo: entidad, repo, DTOs, servicio, controlador
-├── medico/            Entidad + repositorio
-└── cita/              Entidad + repositorio (con consulta de solapes)
+├── paciente/          CRUD de pacientes
+├── medico/            CRUD de médicos (baja lógica)
+└── cita/              Reserva, estados, agenda e historial
 ```
 
 ## Endpoints
 
-| Método | Ruta | Estado |
+### Pacientes
+| Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/api/v1/pacientes?page=0&size=20` | ✅ |
-| GET | `/api/v1/pacientes/{id}` | ✅ |
-| POST | `/api/v1/pacientes` | ✅ |
-| PUT | `/api/v1/pacientes/{id}` | ✅ |
-| DELETE | `/api/v1/pacientes/{id}` | ✅ |
-| CRUD | `/api/v1/medicos` | ⏳ |
-| POST | `/api/v1/citas` (sin solapes) | ⏳ |
-| PATCH | `/api/v1/citas/{id}/cancelar` | ⏳ |
-| GET | `/api/v1/medicos/{id}/agenda?fecha=` | ⏳ |
+| GET | `/api/v1/pacientes?page=0&size=20` | Listado paginado |
+| GET | `/api/v1/pacientes/{id}` | Detalle |
+| POST | `/api/v1/pacientes` | Alta (DNI y email únicos) |
+| PUT | `/api/v1/pacientes/{id}` | Actualizar (el DNI no cambia) |
+| DELETE | `/api/v1/pacientes/{id}` | Borrar (409 si tiene citas) |
+| GET | `/api/v1/pacientes/{id}/citas` | Historial de citas |
+
+### Médicos
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/api/v1/medicos?especialidad=CARDIOLOGIA` | Listado paginado, filtro opcional |
+| GET | `/api/v1/medicos/{id}` | Detalle |
+| POST | `/api/v1/medicos` | Alta (nº de colegiado único) |
+| PUT | `/api/v1/medicos/{id}` | Actualizar |
+| DELETE | `/api/v1/medicos/{id}` | Baja lógica (no admite nuevas citas) |
+| PATCH | `/api/v1/medicos/{id}/activar` | Reactivar |
+| GET | `/api/v1/medicos/{id}/agenda?fecha=2026-12-15` | Agenda del día |
+
+### Citas
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/api/v1/citas` | Reservar |
+| GET | `/api/v1/citas/{id}` | Detalle |
+| PATCH | `/api/v1/citas/{id}/confirmar` | PROGRAMADA → CONFIRMADA |
+| PATCH | `/api/v1/citas/{id}/cancelar` | Solo antes de que empiece |
+| PATCH | `/api/v1/citas/{id}/completar` | Solo una vez empezada |
+| PATCH | `/api/v1/citas/{id}/no-presentado` | Solo una vez empezada |
+
+## Reglas de negocio de las citas
+
+- La hora de fin debe ser posterior a la de inicio, y la cita debe ser futura (400).
+- Un médico dado de baja no admite citas (409).
+- No puede solaparse con otra cita no cancelada **del médico** ni **del paciente** (409). Citas contiguas (10:00-10:30 y 10:30-11:00) sí se permiten.
+- Al reservar se bloquea la fila del médico (`SELECT ... FOR UPDATE`), así dos reservas simultáneas no pueden ocupar el mismo hueco.
+- Las transiciones de estado están en la propia entidad `Cita`, de modo que no se pueden saltar desde fuera.
 
 ## Hoja de ruta
 
-- [x] Semana 1: estructura, Docker, CRUD de pacientes, manejo de errores, Swagger
-- [ ] Semana 1-2: CRUD de médicos (copia el patrón de `paciente/`)
-- [ ] Semana 2: citas. Validar que `fin > inicio`, que la fecha sea futura y que no se solape con otra cita del médico (`CitaRepository.existeSolapeMedico`). Cancelar, completar y consultar la agenda.
-- [ ] Semana 3: Spring Security + JWT (roles ADMIN, MEDICO, PACIENTE)
+- [x] Estructura, Docker, CRUD de pacientes, manejo de errores, Swagger
+- [x] CRUD de médicos
+- [x] Citas: reserva sin solapes, estados, agenda e historial
+- [ ] Spring Security + JWT (roles ADMIN, MEDICO, PACIENTE)
 - [ ] Semana 3-4: más tests (`@WebMvcTest`, `@DataJpaTest`, Testcontainers), Flyway para migraciones, GitHub Actions

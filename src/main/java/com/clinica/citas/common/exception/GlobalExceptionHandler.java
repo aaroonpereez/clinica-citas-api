@@ -1,5 +1,6 @@
 package com.clinica.citas.common.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -30,6 +31,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ConflictException.class)
     ProblemDetail handleConflict(ConflictException ex) {
         return problem(HttpStatus.CONFLICT, "Conflicto", ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidRequestException.class)
+    ProblemDetail handleInvalid(InvalidRequestException ex) {
+        return problem(HttpStatus.BAD_REQUEST, "Petición no válida", ex.getMessage());
+    }
+
+    /** Red de seguridad: una restricción UNIQUE o FK de la base de datos que no se comprobó antes. */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    ProblemDetail handleDataIntegrity(DataIntegrityViolationException ex) {
+        return problem(HttpStatus.CONFLICT, "Conflicto", "La operación viola una restricción de datos");
     }
 
     @Override
