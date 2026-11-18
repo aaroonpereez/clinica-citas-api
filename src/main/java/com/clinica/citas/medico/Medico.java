@@ -37,11 +37,28 @@ public class Medico {
         this.especialidad = especialidad;
     }
 
+    public void actualizar(String nombre, String apellidos, Especialidad especialidad) {
+        this.nombre = nombre;
+        this.apellidos = apellidos;
+        this.especialidad = especialidad;
+    }
+
+    public void desactivar() {
+        this.activo = false;
+    }
+
+    public void activar() {
+        this.activo = true;
+    }
+
+    public String getNombreCompleto() {
+        return nombre + " " + apellidos;
+    }
+
     public Long getId() { return id; }
     public String getNombre() { return nombre; }
     public String getApellidos() { return apellidos; }
     public String getNumeroColegiado() { return numeroColegiado; }
     public Especialidad getEspecialidad() { return especialidad; }
     public boolean isActivo() { return activo; }
-    public void setActivo(boolean activo) { this.activo = activo; }
 }

@@ -1,5 +1,6 @@
 package com.clinica.citas.paciente;
 
+import com.clinica.citas.cita.CitaRepository;
 import com.clinica.citas.common.exception.ConflictException;
 import com.clinica.citas.common.exception.ResourceNotFoundException;
 import com.clinica.citas.paciente.dto.PacienteRequest;
@@ -25,6 +26,9 @@ class PacienteServiceTest {
 
     @Mock
     PacienteRepository repository;
+
+    @Mock
+    CitaRepository citaRepository;
 
     @InjectMocks
     PacienteService service;
@@ -60,5 +64,16 @@ class PacienteServiceTest {
 
         assertThatThrownBy(() -> service.obtener(99L))
                 .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void eliminar_lanzaConflictSiTieneCitas() {
+        Paciente paciente = new Paciente("Lucía", "García", "12345678Z", "lucia@example.com", null, null);
+        when(repository.findById(1L)).thenReturn(Optional.of(paciente));
+        when(citaRepository.existsByPacienteId(1L)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.eliminar(1L))
+                .isInstanceOf(ConflictException.class);
+        verify(repository, never()).delete(any());
     }
 }
