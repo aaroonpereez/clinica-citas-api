@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: clinica-citas-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/clinica}
+    username: ${DB_USER:clinica}
+    password: ${DB_PASSWORD:clinica}
+  jpa:
+    # "update" crea/ajusta las tablas solo. Más adelante cámbialo por Flyway.
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
